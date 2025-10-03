@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Launchpad VPN Admin</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+    <h1>Launchpad VPN Admin</h1>
+    <p>Управление ключами доступа, доменами и пользователями.</p>
+    <p class="admin-info">Вы вошли как администратор: <strong>{{ admin_user }}</strong></p>
+</header>
+<main>
+    <section class="card">
+        <h2>Создать ключ доступа</h2>
+        <form method="post" action="/keys" class="form-grid">
+            <label>Название/пометка
+                <input type="text" name="label" placeholder="Название ключа">
+            </label>
+            <label>Email владельца
+                <input type="email" name="email" placeholder="user@example.com">
+            </label>
+            <label>Максимум одновременных подключений
+                <input type="number" name="max_sessions" value="1" min="1" max="5">
+            </label>
+            <button type="submit">Сгенерировать ключ</button>
+        </form>
+    </section>
+
+    <section class="card">
+        <h2>Активные ключи</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Ключ</th>
+                <th>Метка</th>
+                <th>Email</th>
+                <th>Статус</th>
+                <th>Сессии</th>
+                <th>Последняя активность</th>
+                <th>Действия</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for key in keys %}
+                <tr class="{% if not key.is_active %}disabled{% endif %}">
+                    <td><code>{{ key.key }}</code></td>
+                    <td>{{ key.label or '—' }}</td>
+                    <td>{{ key.owner_email or '—' }}</td>
+                    <td>{{ 'Активен' if key.is_active else 'Выключен' }}</td>
+                    <td>{{ key.current_sessions }} / {{ key.max_sessions }}</td>
+                    <td>{{ key.last_seen_at or '—' }}</td>
+                    <td class="actions">
+                        <form method="post" action="/keys/{{ key.key }}/toggle">
+                            <button type="submit">{{ 'Отключить' if key.is_active else 'Включить' }}</button>
+                        </form>
+                        <form method="post" action="/keys/{{ key.key }}/reset">
+                            <button type="submit">Сбросить</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="7">Ключи ещё не созданы.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <section class="card">
+        <h2>Разрешённые домены</h2>
+        <form method="post" action="/domains" class="form-grid">
+            <label>Домен
+                <input type="text" name="domain" placeholder="vpn.aitelegrama.com" required>
+            </label>
+            <label>Описание
+                <input type="text" name="description" placeholder="Комментарий">
+            </label>
+            <button type="submit">Добавить / обновить</button>
+        </form>
+        <table>
+            <thead>
+            <tr>
+                <th>Домен</th>
+                <th>Описание</th>
+                <th>Статус</th>
+                <th>Действия</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for domain in domains %}
+                <tr class="{% if not domain.is_enabled %}disabled{% endif %}">
+                    <td>{{ domain.domain }}</td>
+                    <td>{{ domain.description or '—' }}</td>
+                    <td>{{ 'Активен' if domain.is_enabled else 'Выключен' }}</td>
+                    <td>
+                        <form method="post" action="/domains/{{ domain.domain }}/toggle">
+                            <button type="submit">{{ 'Отключить' if domain.is_enabled else 'Включить' }}</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="4">Разрешённые домены не настроены.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    <section class="card">
+        <h2>Пользователи</h2>
+        <p>Администратор <strong>pasha500k</strong> — единственный, кто может выпускать ключи. Остальные пользователи регистрируются самостоятельно.</p>
+        <table>
+            <thead>
+            <tr>
+                <th>Имя</th>
+                <th>Безлимит</th>
+                <th>Активированный ключ</th>
+                <th>Создан</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for user in users %}
+                <tr class="{% if user.username == 'pasha500k' %}highlight{% endif %}">
+                    <td>{{ user.username }}</td>
+                    <td>{{ 'Да' if user.is_unlimited else 'Нет' }}</td>
+                    <td>{{ user.redeemed_key_id or '—' }}</td>
+                    <td>{{ user.created_at }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="4">Пользователи ещё не зарегистрированы.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</main>
+<footer>
+    <p>Основной домен VPN: <strong>vpn.aitelegrama.com</strong></p>
+</footer>
+</body>
+</html>
