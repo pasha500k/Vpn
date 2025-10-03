@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "vpn-suite"
+version = "0.1.0"
+description = "Custom VPN-like proxy service with web management"
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.110.0"
+uvicorn = {extras = ["standard"], version = "^0.27.0"}
+jinja2 = "^3.1.0"
+sqlalchemy = "^2.0.0"
+aiofiles = "^23.0.0"
+httpx = "^0.26.0"
+cryptography = "^42.0.0"
+PyYAML = "^6.0"
+python-multipart = "^0.0.9"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.0"
+ruff = "^0.3.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

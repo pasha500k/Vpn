@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ app_title }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="home">
+<header class="hero">
+    <h1>{{ app_title }}</h1>
+    <p>Современный VPN-сервис с двумя режимами: весь трафик или только выбранные домены.</p>
+    <a class="primary-button" href="/static/LaunchpadVPN-Setup.exe" download>Скачать готовый клиент (.exe)</a>
+</header>
+<main>
+    {% if status_message %}
+        <div class="notice {{ status_level }}">{{ status_message }}</div>
+    {% endif %}
+    <section class="card-grid">
+        <article class="card mode-card">
+            <h2>Режим «Весь трафик»</h2>
+            <p>Шифрует абсолютно всё соединение. Доступ без ключа — {{ limits['full'] }} часов в сутки.</p>
+            <p>После активации ключа ограничения снимаются и трафик становится безлимитным.</p>
+        </article>
+        <article class="card mode-card">
+            <h2>Режим «Домены»</h2>
+            <p>VPN включается только для выбранных сервисов. Без ключа доступно {{ limits['domains'] }} час в день.</p>
+            <p>Домены настраивает администратор и они автоматически применяются в клиенте.</p>
+        </article>
+    </section>
+
+    <section class="card">
+        <h2>Разрешённые домены</h2>
+        {% if domains %}
+            <ul class="domain-list">
+                {% for domain in domains %}
+                    <li>{{ domain }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Администратор ещё не добавил ограниченные домены — используйте режим «Весь трафик».</p>
+        {% endif %}
+    </section>
+
+    <section class="card forms">
+        <div>
+            <h3>Регистрация пользователя</h3>
+            <form method="post" action="/register" class="form-grid">
+                <label>Логин
+                    <input type="text" name="username" minlength="3" required>
+                </label>
+                <label>Пароль
+                    <input type="password" name="password" minlength="6" required>
+                </label>
+                <button type="submit" class="primary-button">Создать аккаунт</button>
+            </form>
+        </div>
+        <div>
+            <h3>Активация ключа</h3>
+            <form method="post" action="/redeem" class="form-grid">
+                <label>Логин
+                    <input type="text" name="username" required>
+                </label>
+                <label>Пароль
+                    <input type="password" name="password" required>
+                </label>
+                <label>Ключ
+                    <input type="text" name="key_value" required>
+                </label>
+                <button type="submit">Активировать</button>
+            </form>
+            <p class="hint">Ключи выдаёт только администратор <strong>pasha500k</strong>.</p>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>Как начать работу</h2>
+        <ol class="steps">
+            <li>Зарегистрируйте учётную запись или получите ключ у администратора.</li>
+            <li>Скачайте и установите клиент Launchpad VPN для Windows.</li>
+            <li>Выберите режим «Весь трафик» или «Домены» прямо в приложении и нажмите «Запуск».</li>
+            <li>При необходимости активируйте ключ — после этого ограничения по времени снимаются.</li>
+        </ol>
+    </section>
+</main>
+<footer>
+    <p>Основной сервер: <strong>vpn.aitelegrama.com</strong>. Администратор: <strong>pasha500k</strong>.</p>
+    <a href="/admin">Войти в панель администратора</a>
+</footer>
+</body>
+</html>
